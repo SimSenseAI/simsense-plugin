@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "simsense": {
+      "type": "http",
+      "url": "https://my.simsense.ai/mcp"
+    }
+  }
+}

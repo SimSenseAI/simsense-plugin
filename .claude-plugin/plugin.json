@@ -1,0 +1,20 @@
+{
+  "name": "simsense",
+  "description": "Connect Claude to SimSense -- create sims, manage devices, and push live experiences to any screen.",
+  "version": "1.0.0",
+  "author": {
+    "name": "SimSense",
+    "url": "https://simsense.ai"
+  },
+  "homepage": "https://simsense.ai",
+  "repository": "https://github.com/simsenseai/simsense-plugin",
+  "license": "MIT",
+  "keywords": [
+    "simsense",
+    "mcp",
+    "sims",
+    "displays",
+    "iot",
+    "screens"
+  ]
+}

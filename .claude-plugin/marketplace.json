@@ -1,0 +1,14 @@
+{
+  "name": "simsenseai",
+  "owner": {
+    "name": "SimSense",
+    "url": "https://simsense.ai"
+  },
+  "plugins": [
+    {
+      "name": "simsense",
+      "description": "Connect Claude to SimSense -- create sims, manage devices, and push live experiences to any screen.",
+      "source": "./"
+    }
+  ]
+}

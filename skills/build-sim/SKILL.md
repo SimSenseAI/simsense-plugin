@@ -141,6 +141,64 @@ const unsub2 = SimSense.onEvent("new_order", (data) => {
 These use WebSocket connections under the hood. Always handle the case where the connection drops - the SDK reconnects automatically, but your UI should be
 resilient to brief gaps.
 
+### Connected devices
+
+Sims can read state and events from physical devices (sensors, IoT firmware, microcontrollers, etc.) once subscribed. Devices push data into SimSense over HTTP
+with their own bearer credential; sims read that data back through the SDK.
+
+**Before building, inspect what's actually flowing.** When the user wants a sim that consumes device data, use MCP tools to look at the real shapes first rather
+than guessing: `list_devices` to see what the user has, `list_sim_devices` to see what a sim is already subscribed to, and `get_device_state` /
+`get_device_events` to peek at actual values. This lets you pick the right namespace/key names, design around real value shapes, and choose a refresh interval
+that matches how often the device updates.
+
+```js
+// Devices this sim is subscribed to.
+const { devices } = await SimSense.listDevices();
+// [{ deviceId, deviceName, deviceSlug, visibility }, ...]
+
+// Get a handle for a specific device.
+const device = SimSense.getDevice(deviceId);
+
+// Read shadow state at any granularity.
+const temp = await device.getState("sensors", "temperature"); // { value, updatedAt } or null
+const ns = await device.getStateNamespace("sensors"); // { temperature: { value, updatedAt }, ... }
+const all = await device.getAllState(); // { entries: [{ namespace, key, value, updatedAt }, ...] }
+
+// Read the device's append-only event log.
+const { events } = await device.getEvents({ type: "reading", limit: 50 });
+```
+
+Devices are **read-only** from a sim. Writes are only possible from the device itself, signed with its own bearer credential.
+
+There is **no real-time push** for device data today (`SimSense.subscribe` / `onEvent` cover the sim's own state and events, not devices). If a sim needs fresh
+values from a device, poll on a `setInterval`. Most devices update on the order of seconds, so 5-10s is usually plenty.
+
+**Build defensively when engaging with devices.** Unlike sim state - which the sim itself controls - device data comes from an external system that may be
+offline, slow, unsubscribed, or simply hasn't written the key yet. Treat every device call as untrusted: wrap in `try/catch`, handle `null` for missing keys,
+check `updatedAt` to detect stale values, and never let a device error blank the UI or crash the sim. If the sim isn't subscribed, calls reject with a
+`403 no_subscription` error - render a friendly placeholder and prompt the user to subscribe from the dashboard rather than retrying in the sim.
+
+```js
+async function refreshTemperature() {
+  const el = document.getElementById("temp");
+  try {
+    const dev = SimSense.getDevice(MY_DEVICE_ID);
+    const temp = await dev.getState("sensors", "temperature");
+    if (!temp) {
+      el.textContent = "Waiting for device...";
+      return;
+    }
+    const ageSec = Date.now() / 1000 - temp.updatedAt;
+    el.textContent = ageSec > 60 ? `${temp.value}°C (stale)` : `${temp.value}°C`;
+  } catch {
+    // Network blip, missing subscription, or device error.
+    // Keep the previous value rather than wiping the UI.
+  }
+}
+refreshTemperature();
+setInterval(refreshTemperature, 5000);
+```
+
 ## Tags
 
 When creating or updating a sim, pick appropriate tags from this list:

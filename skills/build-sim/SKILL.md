@@ -159,13 +159,15 @@ const { devices } = await SimSense.listDevices();
 // Get a handle for a specific device.
 const device = SimSense.getDevice(deviceId);
 
-// Read shadow state at any granularity.
+// Read shadow state at any granularity. Both arguments to getState are required;
+// it throws if `key` is missing -- use getAll(ns) for a namespace bulk read.
 const temp = await device.getState("sensors", "temperature"); // { value, updatedAt } or null
-const ns = await device.getStateNamespace("sensors"); // { temperature: { value, updatedAt }, ... }
-const all = await device.getAllState(); // { entries: [{ namespace, key, value, updatedAt }, ...] }
+const sensors = await device.getAll("sensors"); // { temperature: 21.5, humidity: 48, ... } -- flat dict, mirrors SimSense.getAll
+const entries = await device.getEntries("sensors"); // [{ key, value, updatedAt }, ...] -- use when you need per-key timestamps (e.g. for staleness detection)
 
 // Read the device's append-only event log.
 const { events } = await device.getEvents({ type: "reading", limit: 50 });
+// events: [{ id, type, data, eventTime, ingestedAt }, ...]
 ```
 
 Devices are **read-only** from a sim. Writes are only possible from the device itself, signed with its own bearer credential.

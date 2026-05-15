@@ -31,10 +31,11 @@ automatically on first use.
 
 ## Skills
 
-| Skill                       | Description                                                  |
-| --------------------------- | ------------------------------------------------------------ |
-| `/simsense:getting-started` | Guided walkthrough for creating your first sim               |
-| `/simsense:build-sim`       | Best practices for screen design, SimSense SDK, and patterns |
+| Skill                          | Description                                                                      |
+| ------------------------------ | -------------------------------------------------------------------------------- |
+| `/simsense:getting-started`    | Guided walkthrough for creating your first sim                                   |
+| `/simsense:build-sim`          | Best practices for screen design, SimSense SDK, and patterns                     |
+| `/simsense:monitor-warehouse`  | Read live sensor data, summarize floor activity, debug missing readings          |
 
 ## Links
 
